@@ -6,12 +6,19 @@ import {
 } from '../lib/mockData';
 import type { InventoryItem, Order, ProductMaster } from '../lib/mockData';
 
+export interface InstagramConfig {
+    connected: boolean;
+    handle: string | null;
+    connectedAt: number | null;
+}
+
 interface DataContextType {
     inventory: InventoryItem[];
     orders: Order[];
     products: ProductMaster[];
     adminPassword: string;
     categories: { id: string; name: string; prefix: string; }[];
+    instagramConfig: InstagramConfig;
     addOrder: (order: Omit<Order, 'id' | 'status'>, quantity: number) => void;
     updateOrderStatus: (orderId: string, status: Order['status'], details?: Partial<Order>) => void;
     deleteOrder: (orderId: string) => void;
@@ -19,6 +26,8 @@ interface DataContextType {
     updateAdminPassword: (newPassword: string) => void;
     addCategory: (name: string, prefix: string) => void;
     deleteCategory: (id: string) => void;
+    connectInstagram: (handle: string) => void;
+    disconnectInstagram: () => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -42,6 +51,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         ];
     });
 
+    const [instagramConfig, setInstagramConfig] = useState<InstagramConfig>(() => {
+        const saved = localStorage.getItem('instagramConfig');
+        return saved ? JSON.parse(saved) : { connected: false, handle: null, connectedAt: null };
+    });
+
     const updateAdminPassword = (newPassword: string) => {
         setAdminPassword(newPassword);
         localStorage.setItem('adminPassword', newPassword);
@@ -58,6 +72,26 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const updated = categories.filter(c => c.id !== id);
         setCategories(updated);
         localStorage.setItem('productCategories', JSON.stringify(updated));
+    };
+
+    const connectInstagram = (handle: string) => {
+        const config = {
+            connected: true,
+            handle,
+            connectedAt: Date.now()
+        };
+        setInstagramConfig(config);
+        localStorage.setItem('instagramConfig', JSON.stringify(config));
+    };
+
+    const disconnectInstagram = () => {
+        const config = {
+            connected: false,
+            handle: null,
+            connectedAt: null
+        };
+        setInstagramConfig(config);
+        localStorage.setItem('instagramConfig', JSON.stringify(config));
     };
 
     const addOrder = (orderData: Omit<Order, 'id' | 'status'>, quantity: number) => {
@@ -104,9 +138,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return (
         <DataContext.Provider value={{
             inventory, orders, products,
-            adminPassword, categories,
+            adminPassword, categories, instagramConfig,
             addOrder, updateOrderStatus, deleteOrder, addProduct,
-            updateAdminPassword, addCategory, deleteCategory
+            updateAdminPassword, addCategory, deleteCategory,
+            connectInstagram, disconnectInstagram
         }}>
             {children}
         </DataContext.Provider>

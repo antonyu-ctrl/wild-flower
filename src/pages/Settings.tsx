@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { useData } from '../context/DataContext';
 
 export default function Settings() {
-    const { adminPassword, updateAdminPassword, categories, addCategory, deleteCategory } = useData();
+    const {
+        adminPassword, updateAdminPassword,
+        categories, addCategory, deleteCategory,
+        instagramConfig, connectInstagram, disconnectInstagram
+    } = useData();
 
     // Password State
     const [newPassword, setNewPassword] = useState('');
@@ -11,6 +15,10 @@ export default function Settings() {
     // Category State
     const [newCatName, setNewCatName] = useState('');
     const [newCatPrefix, setNewCatPrefix] = useState('');
+
+    // Instagram State
+    const [handleInput, setHandleInput] = useState('');
+    const [isVerifying, setIsVerifying] = useState(false);
 
     const handlePasswordUpdate = () => {
         if (currentPasswordInput !== adminPassword) {
@@ -25,6 +33,20 @@ export default function Settings() {
         alert('관리자 비밀번호가 변경되었습니다.');
         setNewPassword('');
         setCurrentPasswordInput('');
+    };
+
+    const handleConnectInstagram = () => {
+        if (!handleInput) return;
+        setIsVerifying(true);
+        // Simulate API verification
+        setTimeout(() => {
+            // Remove @ if present
+            const cleanHandle = handleInput.startsWith('@') ? handleInput : `@${handleInput}`;
+            connectInstagram(cleanHandle);
+            setIsVerifying(false);
+            setHandleInput('');
+            alert('Instagram 계정이 성공적으로 연결되었습니다!');
+        }, 1500);
     };
 
     const handleAddCategory = () => {
@@ -45,7 +67,70 @@ export default function Settings() {
         <div className="space-y-6 pb-20">
             <h1 className="text-2xl font-bold text-sage-900">설정 (Settings)</h1>
 
-            {/* 1. Admin Password Section */}
+            {/* 1. Instagram Connection Section */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-sand-200">
+                <h2 className="text-lg font-medium text-sage-800 mb-4 flex items-center gap-2">
+                    <span>📸</span> Instagram 연동
+                </h2>
+
+                {instagramConfig.connected ? (
+                    <div className="flex items-center gap-4 p-4 bg-terracotta-50 rounded-xl border border-terracotta-100 animate-in zoom-in duration-300">
+                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl border border-terracotta-200 shadow-sm">
+                            <span className="animate-bounce">👋</span>
+                        </div>
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                                <p className="text-xs text-terracotta-600 font-medium bg-terracotta-100 px-2 py-0.5 rounded-full">Connected</p>
+                            </div>
+                            <p className="text-lg font-bold text-terracotta-900 tracking-wide mt-1">{instagramConfig.handle}</p>
+                            <p className="text-xs text-terracotta-500 mt-1">
+                                연결일: {instagramConfig.connectedAt ? new Date(instagramConfig.connectedAt).toLocaleDateString() : '-'}
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => {
+                                if (confirm('정말 연결을 해제하시겠습니까?')) disconnectInstagram();
+                            }}
+                            className="px-4 py-2 bg-white text-terracotta-600 border border-terracotta-200 rounded-lg text-xs font-medium hover:bg-terracotta-50 transition-colors"
+                        >
+                            연결 해제
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        <p className="text-sm text-sage-600 bg-sand-50 p-3 rounded-lg border border-sand-100">
+                            주문 알림을 받고 고객과 소통할 Instagram 계정을 연결해주세요.<br />
+                            <span className="text-xs text-sage-400 mt-1 block">* 현재는 시뮬레이션 모드로 동작합니다.</span>
+                        </p>
+                        <div className="flex gap-2">
+                            <div className="relative flex-1 group">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sage-400 font-medium group-focus-within:text-terracotta-500 transition-colors">@</span>
+                                <input
+                                    type="text"
+                                    placeholder="your_shop_id"
+                                    className="w-full pl-8 p-3 bg-sand-50 border border-sand-200 rounded-xl focus:ring-2 focus:ring-terracotta-500 focus:border-transparent outline-none transition-all placeholder:text-sand-300"
+                                    value={handleInput}
+                                    onChange={(e) => setHandleInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleConnectInstagram()}
+                                />
+                            </div>
+                            <button
+                                onClick={handleConnectInstagram}
+                                disabled={!handleInput || isVerifying}
+                                className={`px-6 py-3 rounded-xl font-bold text-white transition-all shadow-sm
+                                    ${isVerifying
+                                        ? 'bg-sand-400 cursor-wait'
+                                        : 'bg-terracotta-500 hover:bg-terracotta-600 hover:shadow-md active:scale-95'
+                                    }`}
+                            >
+                                {isVerifying ? '연결 중...' : '연결하기'}
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* 2. Admin Password Section */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-sand-200">
                 <h2 className="text-lg font-medium text-sage-800 mb-4">🔐 관리자 비밀번호 변경</h2>
                 <div className="space-y-3 max-w-sm">
