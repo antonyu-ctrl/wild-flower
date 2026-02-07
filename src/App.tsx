@@ -11,19 +11,23 @@ import { DataProvider } from './context/DataContext';
 import OrderManagement from './pages/OrderManagement';
 import Settings from './pages/Settings';
 
+import Welcome from './pages/Welcome';
+
 function App() {
   return (
     <DataProvider>
       <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Inventory />} />
-            <Route path="/products" element={<ProductMasterPage />} />
-            <Route path="/shipping" element={<OrderManagement />} />
-            <Route path="/inbox" element={<Inbox />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          {/* Landing Page (No Layout) */}
+          <Route path="/" element={<Welcome />} />
+
+          {/* Main App Pages (With Layout) */}
+          <Route path="/inbox" element={<Layout><Inbox /></Layout>} />
+          <Route path="/shipping" element={<Layout><OrderManagement /></Layout>} />
+          <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
+          <Route path="/products" element={<Layout><ProductMasterPage /></Layout>} />
+          <Route path="/settings" element={<Layout><Settings /></Layout>} />
+        </Routes>
       </BrowserRouter>
     </DataProvider>
   );

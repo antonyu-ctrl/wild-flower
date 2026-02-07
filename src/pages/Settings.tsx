@@ -120,7 +120,7 @@ export default function Settings() {
                                 className={`px-6 py-3 rounded-xl font-bold text-white transition-all shadow-sm
                                     ${isVerifying
                                         ? 'bg-sand-400 cursor-wait'
-                                        : 'bg-terracotta-500 hover:bg-terracotta-600 hover:shadow-md active:scale-95'
+                                        : 'bg-sage-700 hover:bg-sage-800 hover:shadow-md active:scale-95'
                                     }`}
                             >
                                 {isVerifying ? '연결 중...' : '연결하기'}

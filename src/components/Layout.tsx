@@ -10,7 +10,7 @@ export default function Layout({ children }: LayoutProps) {
 
     const navItems = [
         { name: '상품관리', path: '/products', icon: '🏷️' },
-        { name: '재고', path: '/', icon: '📦' },
+        { name: '재고', path: '/inventory', icon: '📦' },
         { name: '배송', path: '/shipping', icon: '🚚' },
         { name: '메시지', path: '/inbox', icon: '💬' },
         { name: '설정', path: '/settings', icon: '⚙️' },

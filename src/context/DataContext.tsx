@@ -19,6 +19,7 @@ interface DataContextType {
     adminPassword: string;
     categories: { id: string; name: string; prefix: string; }[];
     instagramConfig: InstagramConfig;
+    isPasswordSet: boolean;
     addOrder: (order: Omit<Order, 'id' | 'status'>, quantity: number) => void;
     updateOrderStatus: (orderId: string, status: Order['status'], details?: Partial<Order>) => void;
     deleteOrder: (orderId: string) => void;
@@ -38,6 +39,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const [products, setProducts] = useState<ProductMaster[]>(initialProducts);
 
     const [adminPassword, setAdminPassword] = useState<string>(() => localStorage.getItem('adminPassword') || '1234');
+
+    // Check if password involves a change from default '1234'
+    const isPasswordSet = adminPassword !== '1234';
+
     const [categories, setCategories] = useState<{ id: string; name: string; prefix: string; }[]>(() => {
         const saved = localStorage.getItem('productCategories');
         return saved ? JSON.parse(saved) : [
@@ -138,7 +143,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return (
         <DataContext.Provider value={{
             inventory, orders, products,
-            adminPassword, categories, instagramConfig,
+            adminPassword, categories, instagramConfig, isPasswordSet,
             addOrder, updateOrderStatus, deleteOrder, addProduct,
             updateAdminPassword, addCategory, deleteCategory,
             connectInstagram, disconnectInstagram
