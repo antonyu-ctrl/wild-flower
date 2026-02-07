@@ -27,18 +27,18 @@ export default function Welcome() {
     };
 
     return (
-        <div className="min-h-screen bg-sand-50 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto shadow-2xl border-x border-sand-200">
-            <div className="animate-in fade-in zoom-in duration-700 flex flex-col items-center w-full">
+        <div className="min-h-[100dvh] bg-sand-50 flex flex-col items-center p-6 text-center max-w-md mx-auto shadow-2xl border-x border-sand-200 relative overflow-hidden">
+            <div className="flex-1 flex flex-col items-center justify-center w-full animate-in fade-in zoom-in duration-700">
                 {/* Logo */}
-                <div className="w-48 h-48 bg-cream rounded-full shadow-xl flex items-center justify-center mb-8 border-4 border-white overflow-hidden">
+                <div className="w-32 h-32 md:w-48 md:h-48 bg-cream rounded-full shadow-xl flex items-center justify-center mb-6 border-4 border-white overflow-hidden transition-all">
                     <img src="/logo.png" alt="Wild Flower" className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-700" />
                 </div>
 
                 {/* Title */}
-                <h1 className="text-4xl font-serif text-sage-900 mb-2 tracking-wide">
+                <h1 className="text-3xl md:text-4xl font-serif text-sage-900 mb-2 tracking-wide transition-all">
                     Wild Flower
                 </h1>
-                <p className="text-sage-600 mb-12 font-light tracking-widest text-sm uppercase">
+                <p className="text-sage-600 mb-8 font-light tracking-widest text-xs uppercase transition-all">
                     Inventory & Order Management
                 </p>
 
@@ -84,7 +84,7 @@ export default function Welcome() {
                 </div>
             </div>
 
-            <p className="absolute bottom-8 text-xs text-sand-400 font-light">
+            <p className="text-xs text-sand-400 font-light mt-4 mb-2">
                 © 2026 wild flower. All rights reserved.
             </p>
         </div>
