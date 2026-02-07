@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  /* Wildflower Theme Colors */
+  --color-sage-50: #f4f7f5;
+  --color-sage-100: #e3ebe6;
+  --color-sage-200: #c5d8cc;
+  --color-sage-300: #a3c2ce;
+  /* Adjusted for cleaner look */
+  --color-sage-400: #84a98c;
+  /* Primary Brand Color */
+  --color-sage-500: #52796f;
+  --color-sage-600: #354f52;
+  --color-sage-700: #2f3e46;
+  --color-sage-800: #28363d;
+  --color-sage-900: #1b262c;
+
+  --color-sand-50: #fdfcf8;
+  --color-sand-100: #f9f6ee;
+  /* Background Base */
+  --color-sand-200: #f0ebd8;
+  --color-sand-300: #e6dfc3;
+  --color-sand-400: #dccfb0;
+
+  /* Typography */
+  --font-sans: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--color-sand-100);
+  color: var(--color-sage-900);
+  -webkit-font-smoothing: antialiased;
+}
