@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useData } from '../context/DataContext';
 
 export default function OrderManagement() {
-    const { orders, addOrder, updateOrderStatus, deleteOrder, inventory, adminPassword, products } = useData();
+    const { orders, addOrder, updateOrderStatus, deleteOrder, adminPassword, products } = useData();
     const [activeTab, setActiveTab] = useState<'register' | 'list'>('register');
 
     // Registration Form State

@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Inventory from './pages/Inventory';
 
-import Shipping from './pages/Shipping';
+// import Shipping from './pages/Shipping';
 import Inbox from './pages/Inbox';
 
 import ProductMasterPage from './pages/ProductMaster';
