@@ -24,6 +24,8 @@ interface DataContextType {
     updateOrderStatus: (orderId: string, status: Order['status'], details?: Partial<Order>) => void;
     deleteOrder: (orderId: string) => void;
     addProduct: (product: ProductMaster) => void;
+    deleteProduct: (id: string) => void;
+    updateInventory: (id: string, quantity: number) => void;
     updateAdminPassword: (newPassword: string) => void;
     addCategory: (name: string, prefix: string) => void;
     deleteCategory: (id: string) => void;
@@ -140,11 +142,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
         setInventory(prev => [...prev, newInvItem]);
     };
 
+    const deleteProduct = (id: string) => {
+        setProducts(prev => prev.filter(p => p.id !== id));
+        // Also remove from inventory
+        setInventory(prev => prev.filter(i => i.productId !== id));
+    };
+
+    const updateInventory = (id: string, quantity: number) => {
+        setInventory(prev => prev.map(item =>
+            item.id === id ? { ...item, stock: quantity } : item
+        ));
+    };
+
     return (
         <DataContext.Provider value={{
             inventory, orders, products,
             adminPassword, categories, instagramConfig, isPasswordSet,
-            addOrder, updateOrderStatus, deleteOrder, addProduct,
+            addOrder, updateOrderStatus, deleteOrder, addProduct, deleteProduct, updateInventory,
             updateAdminPassword, addCategory, deleteCategory,
             connectInstagram, disconnectInstagram
         }}>

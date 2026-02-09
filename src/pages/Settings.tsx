@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useData } from '../context/DataContext';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 export default function Settings() {
     const {
@@ -15,6 +16,15 @@ export default function Settings() {
     // Category State
     const [newCatName, setNewCatName] = useState('');
     const [newCatPrefix, setNewCatPrefix] = useState('');
+
+    // Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalConfig, setModalConfig] = useState<{
+        type: 'ADD' | 'DELETE';
+        title: string;
+        message: string;
+        data: any;
+    } | null>(null);
 
     // Instagram State
     const [handleInput, setHandleInput] = useState('');
@@ -49,7 +59,7 @@ export default function Settings() {
         }, 1500);
     };
 
-    const handleAddCategory = () => {
+    const handleAddCategoryClick = () => {
         if (!newCatName || !newCatPrefix) {
             alert('분류명과 코드를 모두 입력해주세요.');
             return;
@@ -58,13 +68,52 @@ export default function Settings() {
             alert('이미 존재하는 코드 접두어입니다.');
             return;
         }
-        addCategory(newCatName, newCatPrefix);
-        setNewCatName('');
-        setNewCatPrefix('');
+        // Open Modal
+        setModalConfig({
+            type: 'ADD',
+            title: '분류 추가',
+            message: `'${newCatName}' (${newCatPrefix}) 분류를 추가하시겠습니까?`,
+            data: { name: newCatName, prefix: newCatPrefix }
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteCategoryClick = (id: string, name: string) => {
+        setModalConfig({
+            type: 'DELETE',
+            title: '분류 삭제',
+            message: `'${name}' 분류를 삭제하시겠습니까?`,
+            data: { id }
+        });
+        setIsModalOpen(true);
+    }
+
+    const handleConfirm = () => {
+        if (!modalConfig) return;
+
+        if (modalConfig.type === 'ADD') {
+            addCategory(modalConfig.data.name, modalConfig.data.prefix);
+            setNewCatName('');
+            setNewCatPrefix('');
+        } else if (modalConfig.type === 'DELETE') {
+            deleteCategory(modalConfig.data.id);
+        }
+
+        // Close modal and reset
+        setIsModalOpen(false);
+        setModalConfig(null);
     };
 
     return (
-        <div className="space-y-6 pb-20">
+        <div className="space-y-6 pb-20 relative">
+            <ConfirmationModal
+                isOpen={isModalOpen}
+                title={modalConfig?.title || ''}
+                message={modalConfig?.message || ''}
+                onConfirm={handleConfirm}
+                onCancel={() => setIsModalOpen(false)}
+            />
+
             <h1 className="text-2xl font-bold text-sage-900">설정 (Settings)</h1>
 
             {/* 1. Instagram Connection Section */}
@@ -188,8 +237,8 @@ export default function Settings() {
                         maxLength={3}
                     />
                     <button
-                        onClick={handleAddCategory}
-                        className="bg-terra-500 text-white px-4 rounded-lg text-sm font-medium hover:bg-terra-600"
+                        onClick={handleAddCategoryClick}
+                        className="bg-sage-700 text-white px-4 rounded-lg text-sm font-medium hover:bg-sage-800 transition-colors shadow-sm"
                     >
                         추가
                     </button>
@@ -206,11 +255,7 @@ export default function Settings() {
                                 <span className="text-sm text-sage-700 font-medium">{cat.name}</span>
                             </div>
                             <button
-                                onClick={() => {
-                                    if (confirm(`'${cat.name}' 분류를 삭제하시겠습니까?`)) {
-                                        deleteCategory(cat.id);
-                                    }
-                                }}
+                                onClick={() => handleDeleteCategoryClick(cat.id, cat.name)}
                                 className="text-xs text-red-400 hover:text-red-600 underline"
                             >
                                 삭제

@@ -1,11 +1,20 @@
 import { useState } from 'react';
 import { useData } from '../context/DataContext';
 import type { ProductMaster } from '../lib/mockData';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 export default function ProductMasterPage() {
-    const { products, addProduct, categories } = useData();
+    const { products, addProduct, deleteProduct, categories } = useData();
     const [isAdding, setIsAdding] = useState(false);
     const [newProduct, setNewProduct] = useState({ name: '', code: '', category: '', basePrice: 0 });
+    const [deleteConfirm, setDeleteConfirm] = useState<ProductMaster | null>(null);
+
+    const handleDelete = () => {
+        if (deleteConfirm) {
+            deleteProduct(deleteConfirm.id);
+            setDeleteConfirm(null);
+        }
+    };
 
     const handleAdd = () => {
         if (!newProduct.name || !newProduct.category) {
@@ -87,7 +96,7 @@ export default function ProductMasterPage() {
 
                 <div className="space-y-2">
                     {products.map((product) => (
-                        <div key={product.id} className="flex justify-between items-center p-3 border-b border-sand-100 last:border-0 hover:bg-sage-50 transition-colors rounded-lg">
+                        <div key={product.id} className="flex justify-between items-center p-3 border-b border-sand-100 last:border-0 hover:bg-sage-50 transition-colors rounded-lg group">
                             <div>
                                 <h3 className="text-sm font-medium text-sage-900">{product.name}</h3>
                                 <div className="flex gap-2 mt-1">
@@ -95,11 +104,28 @@ export default function ProductMasterPage() {
                                     <span className="text-[10px] text-sage-500">{product.category}</span>
                                 </div>
                             </div>
-                            <span className="text-sm font-medium text-sage-600">₩{product.basePrice.toLocaleString()}</span>
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm font-medium text-sage-600">₩{product.basePrice.toLocaleString()}</span>
+                                <button
+                                    onClick={() => setDeleteConfirm(product)}
+                                    className="text-sand-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 p-1"
+                                    title="삭제"
+                                >
+                                    🗑️
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={!!deleteConfirm}
+                title="상품 삭제"
+                message={`'${deleteConfirm?.name}' 상품을 정말 삭제하시겠습니까?\n삭제 시 재고 정보도 함께 사라집니다.`}
+                onConfirm={handleDelete}
+                onCancel={() => setDeleteConfirm(null)}
+            />
         </div>
     );
 }
