@@ -6,7 +6,8 @@ export default function Settings() {
     const {
         adminPassword, updateAdminPassword,
         categories, addCategory, deleteCategory,
-        instagramConfig, connectInstagram, disconnectInstagram
+        instagramConfig, connectInstagram, disconnectInstagram,
+        simulateWebOrder
     } = useData();
 
     // Password State
@@ -264,6 +265,24 @@ export default function Settings() {
                     ))}
                 </div>
             </div>
-        </div>
+
+            {/* 3. Developer Tools (Simulation) */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-sand-200">
+                <h2 className="text-lg font-medium text-sage-800 mb-4">🤖 자동화 테스트 (Developer)</h2>
+                <p className="text-sm text-sage-600 mb-4 bg-blue-50 p-3 rounded-lg border border-blue-100 text-blue-800">
+                    웹사이트 등 외부에서 주문이 들어오는 상황을 시뮬레이션합니다.<br />
+                    아래 버튼을 누르면 임의의 주문이 자동으로 생성됩니다.
+                </p>
+                <button
+                    onClick={() => {
+                        simulateWebOrder();
+                        alert('가상의 웹 주문이 생성되었습니다! "배송 관리" 탭에서 확인하세요.');
+                    }}
+                    className="w-full py-3 bg-white border-2 border-dashed border-sage-300 text-sage-600 rounded-xl font-bold hover:bg-sage-50 hover:border-sage-400 transition-all"
+                >
+                    🪄 웹 주문 시뮬레이션 실행
+                </button>
+            </div>
+        </div >
     );
 }

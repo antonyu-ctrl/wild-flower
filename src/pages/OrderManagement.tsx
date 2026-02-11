@@ -8,7 +8,7 @@ export default function OrderManagement() {
     // Registration Form State
     const [selectedProductId, setSelectedProductId] = useState('');
     const [customerName, setCustomerName] = useState('');
-    const [instagramId, setInstagramId] = useState('');
+
     const [quantity, setQuantity] = useState(1);
 
     // List Management State
@@ -27,7 +27,8 @@ export default function OrderManagement() {
     // Derived State
     const filteredOrders = orders.filter(order =>
         order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (order.instagramId && order.instagramId.toLowerCase().includes(searchTerm.toLowerCase()))
+        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (order.contactInfo && order.contactInfo.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     const handleRegister = () => {
@@ -36,18 +37,13 @@ export default function OrderManagement() {
             return;
         }
 
-        // Instagram ID Validation
-        if (instagramId && !instagramId.startsWith('@')) {
-            alert('Instagram ID는 @로 시작해야 합니다. (예: @wildflower)');
-            return;
-        }
-
         const product = products.find(p => p.id === selectedProductId);
         if (!product) return;
 
         addOrder({
             customerName,
-            instagramId,
+            contactInfo: '', // No manual entry for now
+            source: 'manual',
             productName: product.name,
             quantity,
             trackingNumber: '',
@@ -56,7 +52,6 @@ export default function OrderManagement() {
 
         // Reset form
         setCustomerName('');
-        setInstagramId('');
         setQuantity(1);
         alert('주문이 등록되었습니다. (재고 자동 차감 완료)');
         setActiveTab('list');
@@ -147,17 +142,7 @@ export default function OrderManagement() {
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-xs font-medium text-sage-700 mb-1">Instagram ID (선택)</label>
-                        <input
-                            type="text"
-                            className="w-full p-3 border border-sand-200 rounded-xl text-sm font-mono placeholder:font-sans"
-                            placeholder="@아이디"
-                            value={instagramId}
-                            onChange={(e) => setInstagramId(e.target.value)}
-                        />
-                        <p className="text-[10px] text-sage-400 mt-1">* DM 매칭을 위해 입력해주세요.</p>
-                    </div>
+
 
                     <div>
                         <label className="block text-xs font-medium text-sage-700 mb-1">수량</label>
@@ -205,11 +190,18 @@ export default function OrderManagement() {
                                 <div className="mb-2 pr-16"> {/* Padding right to avoid overlap with delete button */}
                                     <h3 className="text-sm font-bold text-sage-900 flex items-center gap-2">
                                         {order.customerName}
-                                        {order.instagramId && (
+                                        {order.contactInfo && (
                                             <span className="text-[10px] font-normal font-mono text-sage-500 bg-sand-100 px-1.5 py-0.5 rounded">
-                                                {order.instagramId}
+                                                {order.contactInfo}
                                             </span>
                                         )}
+                                        {/* Source Badge */}
+                                        <span className={`text-[9px] px-1.5 py-0.5 rounded border ${order.source === 'web' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                            order.source === 'instagram' ? 'bg-purple-50 text-purple-600 border-purple-100' :
+                                                'bg-gray-50 text-gray-500 border-gray-200'
+                                            }`}>
+                                            {order.source === 'web' ? 'WEB' : order.source === 'instagram' ? 'IG' : 'MANUAL'}
+                                        </span>
                                     </h3>
                                     <p className="text-xs text-sage-600">{order.productName} (Qty: {order.quantity})</p>
                                 </div>
@@ -262,9 +254,9 @@ export default function OrderManagement() {
 
                                         <div className="flex justify-end gap-2 mt-1">
                                             {/* DM Link Button (If Instagram ID exists) */}
-                                            {order.instagramId && (
+                                            {order.contactInfo && order.contactInfo.startsWith('@') && (
                                                 <a
-                                                    href={`https://ig.me/m/${order.instagramId.replace('@', '')}`}
+                                                    href={`https://ig.me/m/${order.contactInfo.replace('@', '')}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center"

@@ -40,7 +40,13 @@ export default function Inventory() {
                 <div className="space-y-3">
                     {inventory.map((product) => (
                         <div key={product.id} className="flex items-center p-3 bg-sand-50 rounded-xl border border-sand-100">
-                            <div className="text-3xl mr-3">{product.image}</div>
+                            <div className="w-10 h-10 mr-3 rounded-lg bg-white flex items-center justify-center text-xl shadow-sm border border-sand-100 overflow-hidden">
+                                {product.image?.startsWith('data:image') ? (
+                                    <img src={product.image} alt={product.productName} className="w-full h-full object-cover" />
+                                ) : (
+                                    product.image || '📦'
+                                )}
+                            </div>
                             <div className="flex-1">
                                 <h3 className="text-sm font-medium text-sage-900">{product.productName}</h3>
                                 <p className="text-xs text-sage-500">₩{getProductPrice(product.productId).toLocaleString()}</p>
@@ -63,12 +69,7 @@ export default function Inventory() {
                                         {product.stock > 0 ? (
                                             <span className="text-sm font-bold text-sage-600">{product.stock}개</span>
                                         ) : (
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-xs font-bold text-red-400">품절</span>
-                                                {product.restockDate && (
-                                                    <span className="text-xs text-sage-400">{product.restockDate} 입고</span>
-                                                )}
-                                            </div>
+                                            <span className="text-xs font-bold text-red-400">품절</span>
                                         )}
                                         <button
                                             onClick={() => startEditing(product.id, product.stock)}

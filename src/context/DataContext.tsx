@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import {
     mockInventory as initialInventory,
     mockOrders as initialOrders,
@@ -24,6 +24,7 @@ interface DataContextType {
     updateOrderStatus: (orderId: string, status: Order['status'], details?: Partial<Order>) => void;
     deleteOrder: (orderId: string) => void;
     addProduct: (product: ProductMaster) => void;
+    updateProduct: (id: string, details: Partial<ProductMaster>) => void;
     deleteProduct: (id: string) => void;
     updateInventory: (id: string, quantity: number) => void;
     updateAdminPassword: (newPassword: string) => void;
@@ -31,14 +32,38 @@ interface DataContextType {
     deleteCategory: (id: string) => void;
     connectInstagram: (handle: string) => void;
     disconnectInstagram: () => void;
+    simulateWebOrder: () => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-    const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
-    const [orders, setOrders] = useState<Order[]>(initialOrders);
-    const [products, setProducts] = useState<ProductMaster[]>(initialProducts);
+    // Initialize with LocalStorage or Mock Data
+    const [inventory, setInventory] = useState<InventoryItem[]>(() => {
+        const saved = localStorage.getItem('wf_inventory');
+        return saved ? JSON.parse(saved) : initialInventory;
+    });
+    const [orders, setOrders] = useState<Order[]>(() => {
+        const saved = localStorage.getItem('wf_orders');
+        return saved ? JSON.parse(saved) : initialOrders;
+    });
+    const [products, setProducts] = useState<ProductMaster[]>(() => {
+        const saved = localStorage.getItem('wf_products');
+        return saved ? JSON.parse(saved) : initialProducts;
+    });
+
+    // Persistence Effects
+    useEffect(() => {
+        localStorage.setItem('wf_inventory', JSON.stringify(inventory));
+    }, [inventory]);
+
+    useEffect(() => {
+        localStorage.setItem('wf_orders', JSON.stringify(orders));
+    }, [orders]);
+
+    useEffect(() => {
+        localStorage.setItem('wf_products', JSON.stringify(products));
+    }, [products]);
 
     const [adminPassword, setAdminPassword] = useState<string>(() => localStorage.getItem('adminPassword') || '1234');
 
@@ -106,7 +131,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const newOrder: Order = {
             ...orderData,
             id: `ord-${Date.now()}`,
-            status: 'Pending'
+            status: 'Pending',
+            source: orderData.source || 'manual'
         };
         setOrders(prev => [newOrder, ...prev]);
 
@@ -137,9 +163,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
             productId: product.id,
             productName: product.name,
             stock: 0,
-            image: '✨'
+            image: product.image || '✨'
         };
         setInventory(prev => [...prev, newInvItem]);
+    };
+
+    const updateProduct = (id: string, details: Partial<ProductMaster>) => {
+        setProducts(prev => prev.map(p => p.id === id ? { ...p, ...details } : p));
+        // If image is updated, also update inventory image for consistency (optional but good for UI)
+        if (details.image) {
+            setInventory(prev => prev.map(i => i.productId === id ? { ...i, image: details.image! } : i));
+        }
     };
 
     const deleteProduct = (id: string) => {
@@ -154,13 +188,30 @@ export function DataProvider({ children }: { children: ReactNode }) {
         ));
     };
 
+    const simulateWebOrder = () => {
+        // Randomly pick a product
+        const randomProduct = products[Math.floor(Math.random() * products.length)];
+        const names = ['Park', 'Lee', 'Kim', 'Choi', 'Jung'];
+        const randomName = names[Math.floor(Math.random() * names.length)] + ' ' + Math.floor(Math.random() * 100);
+
+        addOrder({
+            customerName: randomName,
+            contactInfo: `${randomName.toLowerCase().replace(' ', '')}@email.com`,
+            source: 'web',
+            productName: randomProduct.name,
+            quantity: 1,
+            trackingNumber: '',
+            shippingDate: ''
+        }, 1);
+    };
+
     return (
         <DataContext.Provider value={{
             inventory, orders, products,
             adminPassword, categories, instagramConfig, isPasswordSet,
-            addOrder, updateOrderStatus, deleteOrder, addProduct, deleteProduct, updateInventory,
+            addOrder, updateOrderStatus, deleteOrder, addProduct, updateProduct, deleteProduct, updateInventory,
             updateAdminPassword, addCategory, deleteCategory,
-            connectInstagram, disconnectInstagram
+            connectInstagram, disconnectInstagram, simulateWebOrder
         }}>
             {children}
         </DataContext.Provider>

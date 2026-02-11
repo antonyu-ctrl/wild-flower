@@ -1,49 +1,58 @@
-// Product Definition (Standardized Names)
-export interface ProductMaster {
-    id: string;
-    code: string;
-    name: string;
-    category: string;
-    basePrice: number;
-}
-
-// Inventory Item (Linked to ProductMaster)
 export interface InventoryItem {
     id: string;
-    productId: string; // Links to ProductMaster
-    productName: string; // Denormalized for convenience
+    productId: string;
+    productName: string;
     stock: number;
-    restockDate?: string;
-    image: string; // For mock display
+    image: string;
 }
 
 export interface Order {
     id: string;
     customerName: string;
+    contactInfo?: string; // Generic contact info (e.g. Email, Instagram ID, Phone)
     productName: string;
     quantity: number;
-    instagramId?: string; // New field for DM matching
-    status: 'Pending' | 'Shipped' | 'Delivered';
+    status: 'Pending' | 'Shipped' | 'Delivered' | 'Cancelled';
     trackingNumber?: string;
     shippingDate?: string;
-    estimatedArrival?: string;
+    source: 'manual' | 'instagram' | 'web'; // Added source field
 }
 
+export interface ProductMaster {
+    id: string;
+    name: string;
+    code: string; // Auto-generated: PREFIX-0001
+    category: string; // Linked to Category List
+    basePrice: number;
+    image?: string; // Added image field for emojis
+}
+
+export const mockCategories = [
+    { id: 'cat1', name: 'Dress', prefix: 'DR' },
+    { id: 'cat2', name: 'Bag', prefix: 'BG' },
+    { id: 'cat3', name: 'Top', prefix: 'TOP' },
+    { id: 'cat4', name: 'Skirt', prefix: 'SK' },
+    { id: 'cat5', name: 'Accessory', prefix: 'ACC' },
+    { id: 'cat6', name: 'Outer', prefix: 'OT' },
+    { id: 'cat7', name: 'Pants', prefix: 'PT' }
+];
+
 export const mockProductMaster: ProductMaster[] = [
-    { id: 'p1', code: 'DR-001', name: '린넨 원피스 (Beige)', category: 'Dress', basePrice: 89000 },
-    { id: 'p2', code: 'BG-002', name: '자수 에코백', category: 'Bag', basePrice: 35000 },
-    { id: 'p3', code: 'BL-003', name: '와일드플라워 블라우스', category: 'Top', basePrice: 62000 },
-    { id: 'p4', code: 'SK-004', name: '코튼 롱 스커트', category: 'Skirt', basePrice: 45000 },
-    { id: 'p5', code: 'ACC-005', name: '실크 스카프', category: 'Accessory', basePrice: 28000 },
+    { id: 'p1', name: 'Linen Dress', code: 'DR-001', category: 'Dress', basePrice: 89000, image: '👗' },
+    { id: 'p2', name: 'Silk Blouse', code: 'TOP-001', category: 'Top', basePrice: 65000, image: '👚' },
+    { id: 'p3', name: 'Wide Pants', code: 'PT-001', category: 'Pants', basePrice: 72000, image: '👖' },
+    { id: 'p4', name: 'Canvas Bag', code: 'BG-001', category: 'Bag', basePrice: 45000, image: '👜' },
 ];
 
 export const mockInventory: InventoryItem[] = [
-    { id: '1', productId: 'p1', productName: '린넨 원피스 (Beige)', stock: 5, image: '👗' },
-    { id: '2', productId: 'p2', productName: '자수 에코백', stock: 0, restockDate: '2025-02-15', image: '👜' },
-    { id: '3', productId: 'p3', productName: '와일드플라워 블라우스', stock: 12, image: '👚' },
+    { id: 'inv1', productId: 'p1', productName: 'Linen Dress', stock: 15, image: '👗' },
+    { id: 'inv2', productId: 'p2', productName: 'Silk Blouse', stock: 8, image: '👚' },
+    { id: 'inv3', productId: 'p3', productName: 'Wide Pants', stock: 20, image: '👖' },
+    { id: 'inv4', productId: 'p4', productName: 'Canvas Bag', stock: 5, image: '👜' },
 ];
 
 export const mockOrders: Order[] = [
-    { id: '101', customerName: '김민지', instagramId: '@minji_daily', productName: '린넨 원피스 (Beige)', quantity: 1, status: 'Shipped', trackingNumber: 'CJ-1234-5678', shippingDate: '2025-02-06' },
-    { id: '102', customerName: '이서준', instagramId: '@seojun_lee', productName: '자수 에코백', quantity: 1, status: 'Pending' },
+    { id: 'ord1', customerName: 'Jisu Kim', contactInfo: '@jisu_daily', source: 'instagram', productName: 'Linen Dress', quantity: 1, status: 'Pending' },
+    { id: 'ord2', customerName: 'Minho Lee', contactInfo: 'minho@email.com', source: 'web', productName: 'Wide Pants', quantity: 2, status: 'Shipped', trackingNumber: 'KR123456789', shippingDate: '2023-10-25' },
+    { id: 'ord3', customerName: 'Seoyeon Park', contactInfo: '', source: 'manual', productName: 'Canvas Bag', quantity: 1, status: 'Delivered', trackingNumber: 'KR987654321', shippingDate: '2023-10-20' },
 ];
