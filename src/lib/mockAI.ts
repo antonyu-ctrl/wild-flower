@@ -31,7 +31,7 @@ export function analyzeMessage(message: string, username: string): Omit<Instagra
         // Search by Name OR Instagram ID (stripping @ if needed)
         const userOrder = mockOrders.find(o =>
             o.customerName === username ||
-            (o.instagramId && o.instagramId.replace('@', '') === username)
+            (o.contactInfo && o.contactInfo.replace('@', '') === username)
         );
 
         if (userOrder) {
@@ -55,7 +55,7 @@ export function analyzeMessage(message: string, username: string): Omit<Instagra
         if (product) {
             const stockMsg = product.stock > 0
                 ? `네! '${product.productName}' 제품은 현재 ${product.stock}개 남아있어 바로 주문 가능합니다.`
-                : `죄송합니다. '${product.productName}' 제품은 현재 품절입니다.${product.restockDate ? ` ${product.restockDate}에 재입고 예정입니다.` : ''}`;
+                : `죄송합니다. '${product.productName}' 제품은 현재 품절입니다. 재입고 일정은 문의주세요!`;
 
             return {
                 isComplaint: false,
