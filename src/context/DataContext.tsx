@@ -171,8 +171,13 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const updateProduct = (id: string, details: Partial<ProductMaster>) => {
         setProducts(prev => prev.map(p => p.id === id ? { ...p, ...details } : p));
         // If image is updated, also update inventory image for consistency (optional but good for UI)
-        if (details.image) {
-            setInventory(prev => prev.map(i => i.productId === id ? { ...i, image: details.image! } : i));
+        // If image or name is updated, also update inventory for consistency
+        if (details.image || details.name) {
+            setInventory(prev => prev.map(i => i.productId === id ? {
+                ...i,
+                image: details.image || i.image,
+                productName: details.name || i.productName
+            } : i));
         }
     };
 

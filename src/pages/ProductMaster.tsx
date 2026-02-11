@@ -2,6 +2,7 @@ import { useState, useRef, type ChangeEvent } from 'react';
 import { useData } from '../context/DataContext';
 import type { ProductMaster } from '../lib/mockData';
 import ConfirmationModal from '../components/ConfirmationModal';
+import ImageCropperModal from '../components/ImageCropperModal';
 
 export default function ProductMasterPage() {
     const { products, addProduct, updateProduct, deleteProduct, categories } = useData();
@@ -13,6 +14,9 @@ export default function ProductMasterPage() {
     const [editingProductId, setEditingProductId] = useState<string | null>(null);
     const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
     const [tempPrice, setTempPrice] = useState<number>(0);
+    const [editingNameId, setEditingNameId] = useState<string | null>(null);
+    const [tempName, setTempName] = useState<string>('');
+    const [croppingImage, setCroppingImage] = useState<string | null>(null);
 
     const handleDelete = () => {
         if (deleteConfirm) {
@@ -26,59 +30,23 @@ export default function ProductMasterPage() {
         fileInputRef.current?.click();
     };
 
-    const compressImage = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (event) => {
-                const img = new Image();
-                img.src = event.target?.result as string;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 300;
-                    const MAX_HEIGHT = 300;
-                    let width = img.width;
-                    let height = img.height;
-
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx?.drawImage(img, 0, 0, width, height);
-
-                    // Compress to JPEG with 0.7 quality
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                    resolve(dataUrl);
-                };
-                img.onerror = (error) => reject(error);
-            };
-            reader.onerror = (error) => reject(error);
-        });
-    };
-
     const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file && editingProductId) {
-            try {
-                const compressedImage = await compressImage(file);
-                updateProduct(editingProductId, { image: compressedImage });
-                setEditingProductId(null);
+            const reader = new FileReader();
+            reader.onload = () => {
+                setCroppingImage(reader.result as string);
                 if (fileInputRef.current) fileInputRef.current.value = ''; // Reset input
-            } catch (error) {
-                console.error('Image compression failed:', error);
-                alert('이미지 처리 중 오류가 발생했습니다.');
-            }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = (croppedImage: string) => {
+        if (editingProductId) {
+            updateProduct(editingProductId, { image: croppedImage });
+            setCroppingImage(null);
+            setEditingProductId(null);
         }
     };
 
@@ -188,7 +156,39 @@ export default function ProductMasterPage() {
                                     )}
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-medium text-sage-900">{product.name}</h3>
+                                    {editingNameId === product.id ? (
+                                        <input
+                                            type="text"
+                                            value={tempName}
+                                            onChange={(e) => setTempName(e.target.value)}
+                                            onBlur={() => {
+                                                updateProduct(product.id, { name: tempName });
+                                                setEditingNameId(null);
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    updateProduct(product.id, { name: tempName });
+                                                    setEditingNameId(null);
+                                                } else if (e.key === 'Escape') {
+                                                    setEditingNameId(null);
+                                                }
+                                            }}
+                                            autoFocus
+                                            className="text-sm font-medium text-sage-900 border border-sage-300 rounded px-1 py-0.5 w-32"
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    ) : (
+                                        <h3
+                                            className="text-sm font-medium text-sage-900 cursor-pointer hover:bg-sand-100 px-1 rounded transition-colors"
+                                            onClick={() => {
+                                                setEditingNameId(product.id);
+                                                setTempName(product.name);
+                                            }}
+                                            title="클릭하여 상품명 수정"
+                                        >
+                                            {product.name}
+                                        </h3>
+                                    )}
                                     <div className="flex gap-2 mt-1">
                                         <span className="text-[10px] bg-sand-200 text-sage-700 px-1.5 py-0.5 rounded">{product.code}</span>
                                         <span className="text-[10px] text-sage-500">{product.category}</span>
@@ -247,6 +247,16 @@ export default function ProductMasterPage() {
                 message={`'${deleteConfirm?.name}' 상품을 정말 삭제하시겠습니까?\n삭제 시 재고 정보도 함께 사라집니다.`}
                 onConfirm={handleDelete}
                 onCancel={() => setDeleteConfirm(null)}
+            />
+
+            <ImageCropperModal
+                isOpen={!!croppingImage}
+                imageSrc={croppingImage}
+                onComplete={handleCropComplete}
+                onCancel={() => {
+                    setCroppingImage(null);
+                    setEditingProductId(null);
+                }}
             />
 
             {/* Hidden File Input */}

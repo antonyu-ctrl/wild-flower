@@ -48,7 +48,9 @@ export default function Inventory() {
                                 )}
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-sm font-medium text-sage-900">{product.productName}</h3>
+                                <h3 className="text-sm font-medium text-sage-900">
+                                    {products.find(p => p.id === product.productId)?.name || product.productName}
+                                </h3>
                                 <p className="text-xs text-sage-500">₩{getProductPrice(product.productId).toLocaleString()}</p>
                             </div>
                             <div className="text-right min-w-[100px]">

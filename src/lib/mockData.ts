@@ -16,6 +16,7 @@ export interface Order {
     trackingNumber?: string;
     shippingDate?: string;
     source: 'manual' | 'instagram' | 'web'; // Added source field
+    note?: string; // Added note field
 }
 
 export interface ProductMaster {

@@ -8,6 +8,7 @@ export default function OrderManagement() {
     // Registration Form State
     const [selectedProductId, setSelectedProductId] = useState('');
     const [customerName, setCustomerName] = useState('');
+    const [note, setNote] = useState('');
 
     const [quantity, setQuantity] = useState(1);
 
@@ -47,11 +48,13 @@ export default function OrderManagement() {
             productName: product.name,
             quantity,
             trackingNumber: '',
-            shippingDate: ''
+            shippingDate: '',
+            note
         }, quantity);
 
         // Reset form
         setCustomerName('');
+        setNote('');
         setQuantity(1);
         alert('주문이 등록되었습니다. (재고 자동 차감 완료)');
         setActiveTab('list');
@@ -142,6 +145,17 @@ export default function OrderManagement() {
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-xs font-medium text-sage-700 mb-1">주문 메모</label>
+                        <textarea
+                            className="w-full p-3 border border-sand-200 rounded-xl text-sm"
+                            placeholder="특이사항 (선택)"
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            rows={2}
+                        />
+                    </div>
+
 
 
                     <div>
@@ -204,6 +218,11 @@ export default function OrderManagement() {
                                         </span>
                                     </h3>
                                     <p className="text-xs text-sage-600">{order.productName} (Qty: {order.quantity})</p>
+                                    {order.note && (
+                                        <div className="mt-1 p-2 bg-sand-50 rounded-lg text-xs text-sage-700">
+                                            📝 {order.note}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {shippingUpdateId === order.id ? (
